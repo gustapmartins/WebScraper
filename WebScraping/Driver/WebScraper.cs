@@ -3,54 +3,58 @@ using EasyAutomationFramework.Model;
 using WebScraping.Model;
 using OpenQA.Selenium;
 using System.Data;
+using WebScraping.Validation;
 
 namespace WebScraping.Driver;
 
 public class WebScraper : Web
 {
-    public static bool CheckPrice(Item item, int priceLimit)
-    {
-        var price = item.price.Replace("$", "").Replace(".", "");
-        return int.Parse(price) < priceLimit;
-    }
-
     public DataTable GetData(string link)
-    {
-        StartBrowser();
-
-        var items = new List<Item>();
-
-        Navigate(link);
-
-        //AssignValue(TypeElement.Id, "searchInputId", "Texto da pesquisa");
-
-        var elements = GetValue(TypeElement.Xpath, "/html/body/div[1]/div[3]/div/div[2]/div[1]")
-            .element.FindElements(By.ClassName("thumbnail"));
-
-        foreach(var element in elements)
-        {
-            var item = new Item()
-            {
-                title = element.FindElement(By.ClassName("title")).Text,
-                price = element.FindElement(By.ClassName("price")).Text,
-                description = element.FindElement(By.ClassName("description")).Text
-            };
-
-            if(CheckPrice(item, 3000))
-            {
-                items.Add(item);
-            }
-        }
-
-        return Base.ConvertTo(items);
-    }
-
-
-    public async Task ExecuteJob()
     {
         try
         {
-            var computers = GetData("https://www.webscraper.io/test-sites/e-commerce/allinone/computers");
+            StartBrowser();
+
+            var items = new List<Item>();
+
+            Navigate(link);
+
+            AssignValue(TypeElement.Id, "cb1-edit", "Playstation 5");
+
+            Click(TypeElement.Xpath, "/html/body/header/div/div[2]/form/button");
+
+            var elements = GetValue(TypeElement.Xpath, "//*[@id=\"root-app\"]/div/div[2]/section/ol")
+                .element.FindElements(By.ClassName("ui-search-layout__item"));
+
+            foreach (var element in elements)
+            {
+                var item = new Item()
+                {
+                    title = element.FindElement(By.ClassName("ui-search-item__title")).Text,
+                    price = element.FindElement(By.ClassName("andes-money-amount__fraction")).Text,
+                    description = element.FindElement(By.ClassName("ui-search-color--LIGHT_GREEN")).Text,
+                    link = element.FindElement(By.ClassName("ui-search-link__title-card")).GetAttribute("href")
+                };
+
+                if (CheckPrice.CheckPriceValidation(item, 3000))
+                {
+                    items.Add(item);
+                }
+            }
+
+            return Base.ConvertTo(items);
+
+        }finally
+        {
+            CloseBrowser();
+        }
+    }
+
+    public async Task ExecuteJob(string linkSite)
+    {
+        try
+        {
+            var computers = GetData(linkSite);
             var paramss = new ParamsDataTable("Dados", @"S:\Excels", new List<DataTables>()
             {
                 new("Computers", computers)
