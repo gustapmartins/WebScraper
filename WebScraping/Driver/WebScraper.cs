@@ -23,6 +23,8 @@ public class WebScraper : Web
 
             Click(TypeElement.Xpath, "/html/body/header/div/div[2]/form/button");
 
+            WaitForLoad();
+
             var elements = GetValue(TypeElement.Xpath, "//*[@id=\"root-app\"]/div/div[2]/section/ol")
                 .element.FindElements(By.ClassName("ui-search-layout__item"));
 
@@ -32,11 +34,11 @@ public class WebScraper : Web
                 {
                     title = element.FindElement(By.ClassName("ui-search-item__title")).Text,
                     price = element.FindElement(By.ClassName("andes-money-amount__fraction")).Text,
-                    description = element.FindElement(By.ClassName("ui-search-color--LIGHT_GREEN")).Text,
+                    description = null,
                     link = element.FindElement(By.ClassName("ui-search-link__title-card")).GetAttribute("href")
                 };
 
-                if (CheckPrice.CheckPriceValidation(item, 3000))
+                if (CheckPrice.CheckPriceValidation(item, 6000))
                 {
                     items.Add(item);
                 }
@@ -55,7 +57,7 @@ public class WebScraper : Web
         try
         {
             var computers = GetData(linkSite);
-            var paramss = new ParamsDataTable("Dados", @"S:\Excels", new List<DataTables>()
+            var paramss = new ParamsDataTable("Dados", @"C:\Excel", new List<DataTables>()
             {
                 new("Computers", computers)
             });
