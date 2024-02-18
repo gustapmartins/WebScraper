@@ -1,117 +1,93 @@
 ﻿using EasyAutomationFramework;
-using EasyAutomationFramework.Model;
 using WebScraping.Validation;
 using WebScraping.Model;
 using OpenQA.Selenium;
 using System.Data;
-using Newtonsoft.Json;
-using sun.swing;
+using WebScraping.Utils;
 
 namespace WebScraping.Driver;
 
 public class WebScraper : Web
 {
-    public static void ConvertItemJson(List<Item> Items)
-    {
-        string json = JsonConvert.SerializeObject(Items, Formatting.Indented);
-
-        string filePath = @"S:\Excels\Dados.json";
-
-        // Escrever o JSON em um arquivo
-        File.WriteAllText(filePath, json);
-    }
-
-    public DataTable GetData(string link)
+    private DataTable GetData(string link)
     {
         try
         {
             StartBrowser();
 
-            var items = new List<Item>();
+            List<Item> items = new();
 
             Navigate(link);
 
-            AssignValue(TypeElement.Id, "cb1-edit", "Playstation 5");
+            var searchField = GetValue(TypeElement.Name, "q").element;
 
-            Click(TypeElement.Xpath, "/html/body/header/div/div[2]/form/button");
+            searchField.SendKeys("Playstation 5");
+
+            searchField.SendKeys(Keys.Enter);
 
             WaitForLoad();
 
-            var elements = GetValue(TypeElement.Xpath, "//*[@id=\"root-app\"]/div/div[2]/section/ol")
-                .element.FindElements(By.ClassName("ui-search-layout__item"));
+            var elements = GetValue(TypeElement.Xpath, "//*[@id=\"bGmlqc\"]/div/div/div/div/div[2]/div")
+                .element.FindElements(By.ClassName("pla-unit"));
 
             foreach (var element in elements)
             {
 
-                var discountExist = element.FindElement(By.ClassName("ui-search-price__second-line__label")).Text;
-
-                var item = new Item()
+                Item item = new()
                 {
-                    title = element.FindElement(By.ClassName("ui-search-item__title")).Text,
-                    price = element.FindElement(By.ClassName("andes-money-amount__fraction")).Text,
-<<<<<<< HEAD
-                    description = null,
-                    link = element.FindElement(By.ClassName("ui-search-link__title-card")).GetAttribute("href")
+                    title = GetElementTextIfExists(element, By.ClassName("pymv4e")),
+                    price = GetElementTextIfExists(element, By.ClassName("e10twf")),
+                    discount = GetElementTextIfExists(element, By.ClassName("zPEcBd")),
+                    linkAttribute = GetElementAttributeIfExists(element, By.ClassName("pla-unit-title-link"), "href"),
                 };
 
-                if (CheckPrice.CheckPriceValidation(item, 6000))
-=======
-                    discount = !string.IsNullOrEmpty(discountExist) ? discountExist : "N/A",
-                    link = element.FindElement(By.ClassName("ui-search-link__title-card")).GetAttribute("href")
-                };
-
-                if (CheckPrice.CheckPriceValidation(item, 7000))
->>>>>>> fbf7ab4ac3e1a1fd9aa1623fb6bd12ba2e174a72
+                if (string.IsNullOrEmpty(item.title) || string.IsNullOrEmpty(item.price) || string.IsNullOrEmpty(item.discount) || string.IsNullOrEmpty(item.linkAttribute))
                 {
-                    // Verificar se houve redução de preço
-                    if (CheckPriceReduction(item))
-                    {
-                        items.Add(item);
-                    }
+                    // Se algum campo estiver vazio, pula para a próxima iteração
+                    continue;
+                }
+
+
+                if (CheckPrice.CheckPriceValidation(item))
+                {
+                    items.Add(item);
                 }
             }
 
-            ConvertItemJson(items);
+            CreateFiles.CreateItemJson(items);
 
             return Base.ConvertTo(items);
 
-        }finally
+        }catch(Exception ex)
         {
-            CloseBrowser();
+            throw new Exception(ex.Message, ex);
         }
     }
 
-    private bool CheckPriceReduction(Item item)
+    private string GetElementTextIfExists(IWebElement parentElement, By by)
     {
-        // Recuperar histórico de preços do produto, se existir
-        List<Item> historicalPrices = GetHistoricalPrices(item);
-
-        if (historicalPrices.Count > 0)
+        try
         {
-            // Comparar o preço atual com o último preço registrado
-            decimal currentPrice = decimal.Parse(item.price);
-            decimal lastPrice = decimal.Parse(historicalPrices.Last().price);
-
-            return currentPrice < lastPrice;
+            var element = parentElement.FindElement(by);
+            return element.Text;
         }
-
-        // Se não houver histórico de preços, considerar como uma promoção
-        return true;
+        catch (NoSuchElementException)
+        {
+            return null;
+        }
     }
 
-    private List<Item> GetHistoricalPrices(Item item)
+    private string GetElementAttributeIfExists(IWebElement parentElement, By by, string attributeName)
     {
-        string filePath = @"S:\Excels\Dados.json";
-        List<Item> historicalPrices = new List<Item>();
-
-        if (File.Exists(filePath))
+        try
         {
-            string json = File.ReadAllText(filePath);
-            historicalPrices = JsonConvert.DeserializeObject<List<Item>>(json);
+            var element = parentElement.FindElement(by);
+            return element.GetAttribute(attributeName);
         }
-
-        return historicalPrices;
-        return new List<Item>();
+        catch (NoSuchElementException)
+        {
+            return null;
+        }
     }
 
     public async Task ExecuteJob(string linkSite)
@@ -119,11 +95,11 @@ public class WebScraper : Web
         try
         {
             var computers = GetData(linkSite);
-            var paramss = new ParamsDataTable("Dados", @"C:\Excel", new List<DataTables>()
-            {
-                new("Computers", computers)
-            });
-            Base.GenerateExcel(paramss);
+            //var paramss = new ParamsDataTable("Dados", @"C:\Excels", new List<DataTables>()
+            //{
+            //    new("Computers", computers)
+            //});
+            //Base.GenerateExcel(paramss);
             Console.WriteLine("Cron job executado com sucesso.");
         }
         catch (Exception ex)

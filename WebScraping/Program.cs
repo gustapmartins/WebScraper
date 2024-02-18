@@ -6,7 +6,7 @@ public class Program
     {
         var webScraper = new WebScraper();
 
-        string linkSite = "https://www.mercadolivre.com.br";
+        string linkSite = "https://www.google.com.br";
 
         Console.WriteLine("Pressione qualquer tecla para sair...");
         while (!Console.KeyAvailable)
