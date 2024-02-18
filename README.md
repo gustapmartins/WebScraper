@@ -50,7 +50,7 @@ O Web Scraper é uma ferramenta para coletar informações de produtos de vária
 | :---------- | :--------- | :------------------------------------------ |
 | `discount`      | `string` | **Opcional**. Desconto do produto (se houver) |
 
-#### O Atributo discount e o preço são usandos para fazer a comparação e ver se houve uma redução de preço nos produtos
+#### O Atributo 'discount' e o 'price' são usandos para fazer a comparação e ver se houve uma redução de preço nos produtos
 
 Recebe dois números e retorna a sua soma.
 
