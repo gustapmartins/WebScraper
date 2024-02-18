@@ -1,5 +1,7 @@
 # Web Scraper
 
+![App Screenshot](https://contraponto.digital/wp-content/uploads/2022/02/web-.jpg)
+
 O Web Scraper é uma ferramenta para coletar informações de produtos de várias lojas online. Este projeto utiliza Selenium WebDriver para automatizar a navegação web e coletar os dados de produtos de sites específicos.
 
 ## Funcionalidades
@@ -27,6 +29,30 @@ O Web Scraper é uma ferramenta para coletar informações de produtos de vária
 2. Execute o aplicativo com o comando `dotnet run`.
 3. Aguarde até que o processo de coleta de dados seja concluído.
 4. Os dados coletados serão salvos em um arquivo JSON no diretório especificado nas configurações.
+
+## Documentação da Model
+
+#### Mapeamento dos atributos necessários para fazer essa raspagem
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `title`      | `string` | **Obrigatório**. Titulo do produto  |
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `price`      | `string` | **Obrigatório**. Preço do produto |
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `linkAttribute`      | `string` | **Obrigatório**. Link do produto |
+
+| Parâmetro   | Tipo       | Descrição                                   |
+| :---------- | :--------- | :------------------------------------------ |
+| `discount`      | `string` | **Opcional**. Desconto do produto (se houver) |
+
+#### O Atributo discount e o preço são usandos para fazer a comparação e ver se houve uma redução de preço nos produtos
+
+Recebe dois números e retorna a sua soma.
 
 ## Contribuição
 
