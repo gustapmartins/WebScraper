@@ -6,10 +6,6 @@ public class Program
     public static async Task Main(string[] args)
     {
         var webScraper = new WebScraper();
-        var options = new ChromeOptions();
-        options.AddArgument("--headless");
-
-        var driver = new ChromeDriver(options);
 
         string linkSite = "https://www.google.com.br";
 
