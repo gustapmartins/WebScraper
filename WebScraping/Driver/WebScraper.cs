@@ -1,14 +1,17 @@
 ﻿using EasyAutomationFramework;
 using WebScraping.Validation;
 using WebScraping.Model;
+using WebScraping.Utils;
 using OpenQA.Selenium;
 using System.Data;
-using WebScraping.Utils;
+using System.Text.RegularExpressions;
 
 namespace WebScraping.Driver;
 
 public class WebScraper : Web
 {
+    private readonly string _search = "Playstation 5";
+
     private DataTable GetData(string link)
     {
         try
@@ -21,7 +24,7 @@ public class WebScraper : Web
 
             var searchField = GetValue(TypeElement.Name, "q").element;
 
-            searchField.SendKeys("Playstation 5");
+            searchField.SendKeys(_search);
 
             searchField.SendKeys(Keys.Enter);
 
@@ -41,12 +44,11 @@ public class WebScraper : Web
                     linkAttribute = GetElementAttributeIfExists(element, By.ClassName("pla-unit-title-link"), "href"),
                 };
 
-                if (string.IsNullOrEmpty(item.title) || string.IsNullOrEmpty(item.price) || string.IsNullOrEmpty(item.discount) || string.IsNullOrEmpty(item.linkAttribute))
+                if (string.IsNullOrEmpty(item.price) || string.IsNullOrEmpty(item.discount) || string.IsNullOrEmpty(item.linkAttribute))
                 {
-                    // Se algum campo estiver vazio, pula para a próxima iteração
+                    // Se algum campo estiver vazio ou o título não corresponder à pesquisa, pula para a próxima iteração
                     continue;
                 }
-
 
                 if (CheckPrice.CheckPriceValidation(item))
                 {
@@ -68,11 +70,11 @@ public class WebScraper : Web
     {
         try
         {
-            var element = parentElement.FindElement(by);
-            return element.Text;
+            return parentElement.FindElement(by).Text;
         }
-        catch (NoSuchElementException)
+        catch
         {
+            //Não pode parar o processo
             return null;
         }
     }
@@ -86,6 +88,7 @@ public class WebScraper : Web
         }
         catch (NoSuchElementException)
         {
+            //Não pode parar o processo
             return null;
         }
     }

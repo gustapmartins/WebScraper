@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using sun.swing;
 using System.Text.RegularExpressions;
 using WebScraping.Model;
 
@@ -17,14 +16,11 @@ namespace WebScraping.Validation
 
             if (historicalPrices.Count > 0)
             {
-                int price = ConvertStringOrInt(item);
+                int currentPrice = ConvertStringOrInt(item);
 
                 Item ProdutoComMenorPreco = historicalPrices.OrderBy(p => p.price).FirstOrDefault();
 
-                // Comparar o preço atual com o último preço registrado
-                int currentPrice = price;
-
-                int lastPrice = int.Parse(ProdutoComMenorPreco.price);
+                int lastPrice = ConvertStringOrInt(ProdutoComMenorPreco);
 
                 return currentPrice < lastPrice;
             }

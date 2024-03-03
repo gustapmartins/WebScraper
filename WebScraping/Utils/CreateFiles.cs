@@ -10,7 +10,11 @@ public class CreateFiles
 
     public static void CreateItemJson(List<Item> Items)
     {
-        string json = JsonConvert.SerializeObject(Items, Formatting.Indented);
+        List<Item> existingItems = ReadItemJson();
+
+        existingItems.AddRange(Items);
+
+        string json = JsonConvert.SerializeObject(existingItems, Formatting.Indented);
 
         if (!Directory.Exists(directoryPath))
         {
@@ -18,5 +22,17 @@ public class CreateFiles
         }
 
         File.WriteAllText(filePath, json);
+    }
+
+    private static List<Item> ReadItemJson() 
+    {
+        if(File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<List<Item>>(json);
+        }else
+        {
+            return new List<Item>();
+        }
     }
 }
